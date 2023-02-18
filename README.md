@@ -11,6 +11,17 @@ Le programme nécessite Python 3 pour fonctionner. Pour installer les dépendanc
 
 pip install -r requirements.txt
 
+## Objectifs
+
+Le programme SeismicDephase a pour objectif de créer des animations de vagues unidimensionnelles et de leurs interférences. Les animations générées sont utiles pour visualiser les propriétés des ondes et pour enseigner les concepts de base de la physique des ondes.
+
+Le programme utilise les bibliothèques Python standard telles que numpy et multiprocessing pour calculer les ondes et générer les animations. Il utilise également matplotlib pour visualiser les ondes et créer les images de chaque image de l'animation, et moviepy pour combiner les images en une animation vidéo.
+
+Le programme permet également aux utilisateurs de définir des paramètres tels que la vitesse de propagation de l'onde, la fréquence, la phase et la position initiale. Il prend en charge le calcul d'interférences entre plusieurs ondes, permettant ainsi aux utilisateurs de visualiser les effets d'interférences constructives et destructives.
+
+Le programme est conçu pour être facilement extensible et personnalisable. Les utilisateurs peuvent facilement modifier les paramètres pour générer des animations avec des caractéristiques d'onde et des comportements d'interférence différents.
+
+
 
 
 ## Utilisation
