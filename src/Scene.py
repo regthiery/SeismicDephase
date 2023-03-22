@@ -31,6 +31,7 @@ class Scene:
         self.na = 0
         self.selectedWave1 = None
         self.selectedWave2 = None
+        self.diagramType = None
 
         
     #---------------------------------------------------------------------------
@@ -42,13 +43,14 @@ class Scene:
     #---------------------------------------------------------------------------
     def displayInfo(self):
     #---------------------------------------------------------------------------
-        print ("nx          {}".format(self.nx))    
-        print ("na          {}".format(self.na))    
-        print ("xmin        {}".format(self.xmin))    
-        print ("xmax        {}".format(self.xmax))    
-        print ("tmin        {}".format(self.tmin))    
-        print ("tmax        {}".format(self.tmax))    
-        print ("Parallezing {}".format(self.isParallelizing))
+        print ("nx           {}".format(self.nx))    
+        print ("na           {}".format(self.na))    
+        print ("xmin         {}".format(self.xmin))    
+        print ("xmax         {}".format(self.xmax))    
+        print ("tmin         {}".format(self.tmin))    
+        print ("tmax         {}".format(self.tmax))    
+        print ("Parallezing  {}".format(self.isParallelizing))
+        print ("Diagram Type {}".format(self.diagramType))
         k = 1
         for wave in self.waves:
             print ("Wave {}".format(k))
@@ -80,55 +82,143 @@ class Scene:
             sumArray . append (a+b)
     
         return sumArray
-
+    
+    
+    #---------------------------------------------------------------------------
+    def sumWaves(self):
+    #---------------------------------------------------------------------------
+        n = len(self.waves)
+        npoints = len(self.waves[0].waveArray) 
+        i = 0
+        sumArray = []
+        for wave in self.waves:
+            if i ==0:
+                for k in range(0,npoints):
+                    sumArray.append (wave.waveArray[k])
+            else:        
+                for k in range(0,npoints):
+                    sumArray [k] += wave.waveArray[k]
+            i += 1
+        return sumArray                
             
     #---------------------------------------------------------------------------
-    def drawDiagram2 (self, i, waveArray3):        
+    def drawDiagrams (self, i, waveArray3):        
     #---------------------------------------------------------------------------
 
         k = np.argmin(np.abs(self.X - self.x0))
 
-        # Initialisation des graphiques
-        fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(6, 8), gridspec_kw={'height_ratios': [1, 1, 2]}, sharex=True)
-        ax1.set_xlim([self.xmin, self.xmax])
-        ax1.set_ylim([-1.5, 1.5])
-        ax1.set_ylabel('Amplitude')
-        ax1.set_title('Onde 1')
-        ax1.plot( self.X, self.selectedWave1.waveArray)
-        ax1.plot([self.x0], [self.selectedWave1.waveArray[k]], 'go')
+        if self.diagramType == 1:
+            fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(6, 8), gridspec_kw={'height_ratios': [1, 1, 2]}, sharex=True)
+            ax1.set_xlim([self.xmin, self.xmax])
+            ax1.set_ylim([-self.amplitudeMax-0.5, self.amplitudeMax+0.5])
+            ax1.set_ylabel('Amplitude')
+            ax1.set_title('Onde 1')
+            ax1.plot( self.X, self.selectedWave1.waveArray)
+            ax1.plot([self.x0], [self.selectedWave1.waveArray[k]], 'go')
 
-        ax2.set_xlim([self.xmin, self.xmax])
-        ax2.set_ylim([-1.5, 1.5])
-        ax2.set_ylabel('Amplitude')
-        ax2.set_title('Onde 2')
-        ax2.plot( self.X, self.selectedWave2.waveArray)
-        ax2.plot([self.x0], [self.selectedWave2.waveArray[k]], 'go')
+            ax2.set_xlim([self.xmin, self.xmax])
+            ax2.set_ylim([-self.amplitudeMax-0.5, self.amplitudeMax+0.5])
+            ax2.set_ylabel('Amplitude')
+            ax2.set_title('Onde 2')
+            ax2.plot( self.X, self.selectedWave2.waveArray)
+            ax2.plot([self.x0], [self.selectedWave2.waveArray[k]], 'go')
 
-        ax3.set_xlim([self.xmin, self.xmax])
-        ax3.set_ylim([-2.5, 2.5])
-        ax3.set_xlabel('x')
-        ax3.set_ylabel('Amplitude')
-        ax3.set_title('Somme des ondes')
-        ax3.plot( self.X, waveArray3)
-        ax3.plot([self.x0], waveArray3[k], 'go')
+            ax3.set_xlim([self.xmin, self.xmax])
+            ax3.set_ylim([-self.sumAmplitudeMax-0.5, self.sumAmplitudeMax+0.5])
+            ax3.set_xlabel('x')
+            ax3.set_ylabel('Amplitude')
+            ax3.set_title('Somme des ondes')
+            ax3.plot( self.X, waveArray3)
+            ax3.plot([self.x0], waveArray3[k], 'go')
+        
+        elif self.diagramType == 2:    
+
+            fig, (ax1, ax3) = plt.subplots(2, 1, figsize=(6, 8), gridspec_kw={'height_ratios': [1, 1]}, sharex=True)
+            ax1.set_xlim([self.xmin, self.xmax])
+            ax1.set_ylim([-self.amplitudeMax-0.5, self.amplitudeMax+0.5])
+            ax1.set_ylabel('Amplitude')
+            ax1.set_title('Ondes')
+            for wave in self.waves:
+                ax1.plot( self.X, wave.waveArray)
+                ax1.plot([self.x0], [wave.waveArray[k]], 'go')
+
+
+            n = len (self.waves)
+            ax3.set_xlim([self.xmin, self.xmax])
+            ax3.set_ylim([-self.sumAmplitudeMax-0.5, self.sumAmplitudeMax+0.5])
+            ax3.set_xlabel('x')
+            ax3.set_ylabel('Amplitude')
+            ax3.set_title('Somme des ondes')
+            ax3.plot( self.X, waveArray3)
+            ax3.plot([self.x0], waveArray3[k], 'go')
         
         fig.savefig("{}/image{:04d}.png".format(self.imagesFolderPath,i))
         plt.close(fig)
 
-    #---------------------------------------------------------------------------
-    def makeDiagram2(self, i, t):
-    #---------------------------------------------------------------------------
-        self.calculateWaves(t)
-        waveArray3 = self.sumWavesArray(self.selectedWave1.waveArray, self.selectedWave2.waveArray)
-        self.drawDiagram2 ( i, waveArray3)
+
 
     #---------------------------------------------------------------------------
-    def buildAnimation2(self):
+    def calculateAmplitudeMax(self):
     #---------------------------------------------------------------------------
+        sumMax = 0
+        max = 0
+        for wave in self.waves:
+            sumMax += wave.amplitude
+            if max < wave.amplitude:
+                max = wave.amplitude
+        self.sumAmplitudeMax = sumMax 
+        self.amplitudeMax = max           
+
+    #---------------------------------------------------------------------------
+    def makeDiagrams(self, i, t):
+    #---------------------------------------------------------------------------
+        self.calculateWaves(t)
+        self.calculateAmplitudeMax()
+        if self.diagramType == 1:
+            waveArray3 = self.sumWavesArray(self.selectedWave1.waveArray, self.selectedWave2.waveArray)
+        elif self.diagramType == 2:
+            waveArray3 = self.sumWaves()
+                
+        self.drawDiagrams ( i, waveArray3)
+
+
+    #---------------------------------------------------------------------------
+    def buildAnimationTask(self,i):
+    #---------------------------------------------------------------------------
+        duplicatedScene = copy.deepcopy(self)
+        ti = i / (10 * self.fps )
+        print ("{} \t {}".format(i,ti))
+        duplicatedScene.makeDiagrams( i, ti )
+
+
+    #---------------------------------------------------------------------------
+    def buildFromScript(self,filename):
+    #---------------------------------------------------------------------------
+        self.filename=filename
+        data = self.parseFile(filename)
+        self.buildScene(data)
+        self.prepare()
+        self.displayInfo()
+
+    #---------------------------------------------------------------------------
+    def buildAnimation(self):
+    #---------------------------------------------------------------------------
+        self.eraseImagesFolder()
+
+        if self.diagramType == None:
+            n = len(self.waves)
+            if n == 2:
+                self.diagramType = 1
+            elif n > 2:
+                self.diagranType = 2
+
+        if self.diagramType == 1:
+            self.selectWaves( self.waves[0], self.waves[1])
+
         if self.isParallelizing:
             numProcesses = self.nProcessors
             pool = multiprocessing.Pool(numProcesses)
-            taskFunc = partial (self.buildAnimation2Task)
+            taskFunc = partial (self.buildAnimationTask)
             taskArgs = range(self.na)
             results = pool.map ( taskFunc, taskArgs)
             pool.close()
@@ -138,25 +228,11 @@ class Scene:
             for i in range(self.na):
                 ti = i / (10 * self.fps )
                 print ("{} \t {}".format(i,ti))
-                self.makeDiagram2( i, ti)
+                self.makeDiagrams( i, ti)
 
         self.saveAnimation ()
 
-    #---------------------------------------------------------------------------
-    def buildAnimation2Task(self,i):
-    #---------------------------------------------------------------------------
-        duplicatedScene = copy.deepcopy(self)
-        ti = i / (10 * self.fps )
-        print ("{} \t {}".format(i,ti))
-        duplicatedScene.makeDiagram2( i, ti )
 
-    #---------------------------------------------------------------------------
-    def buildAnimation(self):
-    #---------------------------------------------------------------------------
-        self.eraseImagesFolder()
-        if len(self.waves) == 2:
-            self.selectWaves( self.waves[0], self.waves[1])
-            self.buildAnimation2()
 
     #---------------------------------------------------------------------------
     def eraseImagesFolder(self):
@@ -202,6 +278,9 @@ class Scene:
             elif line.startswith("parallel"):
                 data["parallel"] = int(line.split()[1])
                 current_section = None
+            elif line.startswith("type"):
+                data["type"] = int(line.split()[1])
+                current_section = None
 
             elif line.startswith("nx"):
                 data["nx"] = int(line.split()[1])
@@ -236,16 +315,13 @@ class Scene:
             elif line.startswith("phase"):
                 if current_section == "wave":
                     wave["phase"] = float(line.split()[1])
+            elif line.startswith("amplitude"):
+                if current_section == "wave":
+                    wave["amplitude"] = float(line.split()[1])
                 
         return data
 
 
-    def buildFromScript(self,filename):
-        self.filename=filename
-        data = self.parseFile(filename)
-        self.buildScene(data)
-        self.prepare()
-        self.displayInfo()
 
 
     def buildScene(self,data):
@@ -269,6 +345,9 @@ class Scene:
         if "parallel" in data:
             self.isParallelizing = True    
             self.nProcessors = data["parallel"]
+        if "type" in data:
+            self.diagramType = data["type"]
+
             
         if "waves" in data:
             nWaves = len (data["waves"])
@@ -282,5 +361,7 @@ class Scene:
                     wave.setFrequence (waveData["f"])
                 if "phase" in waveData:
                     wave.setPhase (waveData["phase"])
+                if "amplitude" in waveData:
+                    wave.amplitude = waveData["amplitude"]
 
         return self
